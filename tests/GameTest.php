@@ -15,14 +15,29 @@ class GameTest extends TestCase {
    }
 
    public function testImage_WithPath_ReturnsPath() {
-
+        $game = new Game();
+        $game->setImagePath('images/game1.png');
+        $this->assertEquals('images/game1.png', $game->getImagePath());
    }
 
    public function testAverageScore_WithoutRatings_ReturnsNull() {
-
+        $game = new Game();
+        $game->setRatings([]);
+        $this->assertNull($game->getAverageScore());
    }
 
    public function testAverageScore_With6And8_Returns7() {
+        $rating1 = $this->createMock(Rating::class);
+        $rating1->method('getScore')->willReturn(6);
+
+        $rating2 = $this->createMock(Rating::class);
+        $rating2->method('getScore')->willReturn(8);
+
+        $game = $this->getMockBuilder(Game::class)
+        ->setMethods(array('getRatings'))
+        ->getMock();
+        $game->method('getRatings')->willReturn([$rating1, $rating2]);
+        $this->assertEquals(7, $game->getAverageScore());
 
    }
 
@@ -44,9 +59,31 @@ class GameTest extends TestCase {
 
    public function testIsRecommended_WithCompatibility2AndScore10_ReturnsFalse()
    {
+       $rating1 = $this->createMock(Rating::class);
+       $rating1->method('getScore')->willReturn(10);
+
+       $user = $this-> createMock(User::class);
+       $user->method('getGenreCompatibility')->willReturn(2);
+
+       $game = $this->getMockBuilder(Game::class)
+       ->setMethods(array('getRatings'))
+       ->getMock();
+       $game->method('getRatings')->willReturn([$rating1]);
+       $this->assertFalse($game->isRecommended($user));
    }
 
    public function testIsRecommended_WithCompatibility10AndScore10_ReturnsTrue()
    {
+    $rating1 = $this->createMock(Rating::class);
+    $rating1->method('getScore')->willReturn(10);
+
+    $user = $this-> createMock(User::class);
+    $user->method('getGenreCompatibility')->willReturn(10);
+
+    $game = $this->getMockBuilder(Game::class)
+    ->setMethods(array('getRatings'))
+    ->getMock();
+    $game->method('getRatings')->willReturn([$rating1]);
+    $this->assertTrue($game->isRecommended($user));
    }
 }
